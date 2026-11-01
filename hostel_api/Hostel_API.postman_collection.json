@@ -1,0 +1,3626 @@
+{
+  "info": {
+    "name": "Hostel Management API v3.1 (roles, city admin, soft delete)",
+    "description": "Run the folders top to bottom (Collection Runner). Folder 1 logs in as head office, folder 2 creates two cities, two branches, their admins and a city admin, folder 3 / 3b log in as branch admins and the city admin, folders 4-12 work inside Branch A / Branch B, 14 checks isolation, 15 and 17 test SOFT delete (nothing is removed from the database).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "super_username",
+      "value": "superadmin"
+    },
+    {
+      "key": "super_password",
+      "value": "admin123"
+    },
+    {
+      "key": "run_id",
+      "value": ""
+    },
+    {
+      "key": "super_token",
+      "value": ""
+    },
+    {
+      "key": "token_a",
+      "value": ""
+    },
+    {
+      "key": "token_b",
+      "value": ""
+    },
+    {
+      "key": "city_a_id",
+      "value": ""
+    },
+    {
+      "key": "city_b_id",
+      "value": ""
+    },
+    {
+      "key": "branch_a_id",
+      "value": ""
+    },
+    {
+      "key": "branch_b_id",
+      "value": ""
+    },
+    {
+      "key": "student_id",
+      "value": ""
+    },
+    {
+      "key": "student_b_id",
+      "value": ""
+    },
+    {
+      "key": "room_id",
+      "value": ""
+    },
+    {
+      "key": "bed_id",
+      "value": ""
+    },
+    {
+      "key": "allocation_id",
+      "value": ""
+    },
+    {
+      "key": "service_id",
+      "value": ""
+    },
+    {
+      "key": "visitor_id",
+      "value": ""
+    },
+    {
+      "key": "leave_id",
+      "value": ""
+    },
+    {
+      "key": "temp_student_id",
+      "value": ""
+    },
+    {
+      "key": "token_city",
+      "value": ""
+    },
+    {
+      "key": "city_admin_id",
+      "value": ""
+    },
+    {
+      "key": "city_branch_id",
+      "value": ""
+    },
+    {
+      "key": "temp_room_id",
+      "value": ""
+    },
+    {
+      "key": "temp_branch_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Super Admin Login",
+      "item": [
+        {
+          "name": "Login (head office)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"super_token\", json.data.token);",
+                  "pm.collectionVariables.set(\"run_id\", String(Date.now()).slice(-6));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{super_username}}\",\n  \"password\": \"{{super_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ],
+      "description": "The API creates superadmin / admin123 by itself when it starts (see README). Put the same values into the collection variables super_username / super_password.",
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "name": "2. Head office setup (cities, branches, admins)",
+      "item": [
+        {
+          "name": "Add City A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"city_a_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Islamabad-{{run_id}}\",\n  \"province\": \"ICT\",\n  \"country\": \"Pakistan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Add City B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"city_b_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lahore-{{run_id}}\",\n  \"province\": \"Punjab\",\n  \"country\": \"Pakistan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Cities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add Branch A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"branch_a_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_a_id}}\",\n  \"name\": \"F-7 Hostel\",\n  \"code\": \"ISB-{{run_id}}\",\n  \"address\": \"F-7 Markaz\",\n  \"contact\": \"0511234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Add Branch B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"branch_b_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_b_id}}\",\n  \"name\": \"Gulberg Hostel\",\n  \"code\": \"LHR-{{run_id}}\",\n  \"address\": \"Main Boulevard\",\n  \"contact\": \"0421234567\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Branches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            }
+          }
+        },
+        {
+          "name": "View Branch A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Branch A (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_a_id}}\",\n  \"name\": \"F-7 Hostel\",\n  \"code\": \"ISB-{{run_id}}\",\n  \"address\": \"F-7 Markaz, Islamabad\",\n  \"contact\": \"0511234567\",\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create admin for Branch A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/admins",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "admins"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"warden_a_{{run_id}}\",\n  \"password\": \"PasswordA123\",\n  \"full_name\": \"Warden of Branch A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create admin for Branch B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/admins",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "admins"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"warden_b_{{run_id}}\",\n  \"password\": \"PasswordB123\",\n  \"full_name\": \"Warden of Branch B\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List admins of Branch A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/admins",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "admins"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Roles hierarchy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "roles"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create city admin for City A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"city_admin_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities/{{city_a_id}}/admins",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities",
+                "{{city_a_id}}",
+                "admins"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"cityadmin_a_{{run_id}}\",\n  \"password\": \"CityAdmin123\",\n  \"full_name\": \"Sara Malik\",\n  \"contact\": \"03001112222\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List city admins of City A",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities/{{city_a_id}}/admins",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities",
+                "{{city_a_id}}",
+                "admins"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update city admin (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities/{{city_a_id}}/admins/{{city_admin_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities",
+                "{{city_a_id}}",
+                "admins",
+                "{{city_admin_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contact\": \"03001113333\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Who is in charge of Branch A (hierarchy)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/hierarchy",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "hierarchy"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{super_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "3. Branch admin login",
+      "item": [
+        {
+          "name": "Login Branch A admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token_a\", json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"warden_a_{{run_id}}\",\n  \"password\": \"PasswordA123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Login Branch B admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token_b\", json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"warden_b_{{run_id}}\",\n  \"password\": \"PasswordB123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Who am I (Branch A)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "3b. City admin (Islamabad)",
+      "item": [
+        {
+          "name": "Login city admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"token_city\", json.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"cityadmin_a_{{run_id}}\",\n  \"password\": \"CityAdmin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Who am I (city admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "City admin opens Branch A students (own city) -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students"
+              ]
+            }
+          }
+        },
+        {
+          "name": "City admin opens Branch B students (other city) -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "students"
+              ]
+            }
+          }
+        },
+        {
+          "name": "City admin creates a city -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nope-{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "City admin adds a branch in own city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"city_branch_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_a_id}}\",\n  \"name\": \"G-11 Hostel\",\n  \"code\": \"ISB-G11-{{run_id}}\",\n  \"address\": \"G-11 Markaz\",\n  \"contact\": \"0519999999\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "City admin adds a branch in ANOTHER city -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_b_id}}\",\n  \"name\": \"Not Allowed\",\n  \"code\": \"NOPE-{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "City admin deletes that branch (soft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{city_branch_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{city_branch_id}}"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_city}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "4. Students (Branch A)",
+      "item": [
+        {
+          "name": "Add Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"student_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ali\",\n  \"last_name\": \"Khan\",\n  \"father_name\": \"Ahmed Khan\",\n  \"mother_name\": \"Ayesha Khan\",\n  \"dob\": \"2003-05-14\",\n  \"contact\": \"03001234567\",\n  \"email\": \"ali.khan@example.com\",\n  \"address\": \"Street 5, Islamabad\",\n  \"vehicle_number\": \"ABC-123\",\n  \"college_workplace\": \"GIKI\",\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Students (paged)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "View Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ali\",\n  \"last_name\": \"Khan\",\n  \"father_name\": \"Ahmed Khan\",\n  \"mother_name\": \"Ayesha Khan\",\n  \"dob\": \"2003-05-14\",\n  \"contact\": \"03111234567\",\n  \"email\": \"ali.khan@example.com\",\n  \"address\": \"House 12, Rawalpindi\",\n  \"vehicle_number\": \"ABC-123\",\n  \"college_workplace\": \"GIKI\",\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "5. Rooms and Beds (Branch A)",
+      "item": [
+        {
+          "name": "Add Room (beds auto-create)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"room_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_number\": \"R-{{run_id}}\",\n  \"floor\": 1,\n  \"capacity\": 3,\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Rooms",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms"
+              ]
+            }
+          }
+        },
+        {
+          "name": "View Room Beds",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"bed_id\", json.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms/{{room_id}}/beds",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms",
+                "{{room_id}}",
+                "beds"
+              ]
+            }
+          }
+        },
+        {
+          "name": "View Available Beds",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/beds/available",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "beds",
+                "available"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "6. Allocations (Branch A)",
+      "item": [
+        {
+          "name": "Allocate Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"allocation_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/allocations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "allocations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\",\n  \"room_id\": \"{{room_id}}\",\n  \"bed_id\": \"{{bed_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Allocations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/allocations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "allocations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Active Allocations (filter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/allocations?status=Active",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "allocations"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Active"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Checkout Allocation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/allocations/{{allocation_id}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "allocations",
+                "{{allocation_id}}",
+                "checkout"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "7. Services (Branch A)",
+      "item": [
+        {
+          "name": "Add Service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"service_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "services"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laundry\",\n  \"description\": \"Washing and ironing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Services",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "services"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Service catalog (whole network)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove service from this branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/services/{{service_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "services",
+                "{{service_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add the same service again (link is revived)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"service_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "services"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laundry\",\n  \"description\": \"Washing and ironing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "8. Visitors (Branch A)",
+      "item": [
+        {
+          "name": "Add Visitor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"visitor_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/visitors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "visitors"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\",\n  \"visitor_name\": \"Ahmed Khan\",\n  \"contact\": \"03005556666\",\n  \"reason\": \"Meeting son\",\n  \"address\": \"Islamabad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Visitors",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/visitors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "visitors"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Visitor Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/visitors/{{visitor_id}}/checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "visitors",
+                "{{visitor_id}}",
+                "checkout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Same visitor comes again (user row reused)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/visitors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "visitors"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\",\n  \"visitor_name\": \"Ahmed Khan\",\n  \"contact\": \"03005556666\",\n  \"reason\": \"Second visit\",\n  \"address\": \"Islamabad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "A visitor is a users row (role visitor). The id returned by Add Visitor is the VISIT id; data.visitor_id is the visitor's user id. The same name + contact is reused."
+    },
+    {
+      "name": "9. Leaves (Branch A)",
+      "item": [
+        {
+          "name": "Apply Leave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"leave_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "leaves"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\",\n  \"reason\": \"Family function\",\n  \"application_date\": \"2026-10-20\",\n  \"return_date\": \"2026-10-25\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Leaves",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/leaves",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "leaves"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Pending Leaves (filter)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/leaves?status=Pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "leaves"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "Pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Leave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/leaves/{{leave_id}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "leaves",
+                "{{leave_id}}",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Leave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/leaves/{{leave_id}}/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "leaves",
+                "{{leave_id}}",
+                "reject"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "10. Attendance (Branch A)",
+      "item": [
+        {
+          "name": "Student OUT",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/attendance/out",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "attendance",
+                "out"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\",\n  \"purpose\": \"Market\",\n  \"remarks\": \"Back by 8 PM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Student IN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/attendance/in",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "attendance",
+                "in"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": \"{{student_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Attendance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/attendance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "attendance"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "11. Dashboard (Branch A only)",
+      "item": [
+        {
+          "name": "Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "dashboard"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "12. Branch B data (logged in as Branch B admin)",
+      "item": [
+        {
+          "name": "Add Student (Branch B)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"student_b_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Sara\",\n  \"last_name\": \"Malik\",\n  \"father_name\": \"Ahmed Khan\",\n  \"mother_name\": \"Ayesha Khan\",\n  \"dob\": \"2003-05-14\",\n  \"contact\": \"03001234567\",\n  \"email\": \"ali.khan@example.com\",\n  \"address\": \"Gulberg, Lahore\",\n  \"vehicle_number\": \"ABC-123\",\n  \"college_workplace\": \"GIKI\",\n  \"gender\": \"Female\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Add Room (same room number as Branch A is allowed)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "rooms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_number\": \"R-{{run_id}}\",\n  \"floor\": 2,\n  \"capacity\": 4,\n  \"gender\": \"Female\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Add Service (Branch B has its own services)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "services"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mess\",\n  \"description\": \"Three meals a day\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Dashboard (Branch B)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "dashboard"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_b}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "13. Network summary (what other branches may see)",
+      "item": [
+        {
+          "name": "Network overview - all branches",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Network overview - only City B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/overview?city_id={{city_b_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "overview"
+              ],
+              "query": [
+                {
+                  "key": "city_id",
+                  "value": "{{city_b_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Network - totals per city",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "cities"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Basic info of Branch B (name, address, phone)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}"
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Logged in as Branch A: you get COUNTS for every branch (rooms, free rooms, beds, free beds, students) but no names or records.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "14. Isolation checks (these are SUPPOSED to be refused)",
+      "item": [
+        {
+          "name": "Branch A admin opens Branch B students -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "students"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Branch A admin writes into Branch B -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Ali\",\n  \"last_name\": \"Khan\",\n  \"father_name\": \"Ahmed Khan\",\n  \"mother_name\": \"Ayesha Khan\",\n  \"dob\": \"2003-05-14\",\n  \"contact\": \"03001234567\",\n  \"email\": \"ali.khan@example.com\",\n  \"address\": \"Street 5, Islamabad\",\n  \"vehicle_number\": \"ABC-123\",\n  \"college_workplace\": \"GIKI\",\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Branch B's student through Branch A's URL -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_b_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_b_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Branch A admin creates a city -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cities",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Karachi\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "No token at all -> 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "overview"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "15. Soft delete (run near the end)",
+      "item": [
+        {
+          "name": "Create temporary student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"temp_student_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Temp\",\n  \"last_name\": \"Khan\",\n  \"father_name\": \"Ahmed Khan\",\n  \"mother_name\": \"Ayesha Khan\",\n  \"dob\": \"2003-05-14\",\n  \"contact\": \"03001234567\",\n  \"email\": \"ali.khan@example.com\",\n  \"address\": \"Street 5, Islamabad\",\n  \"vehicle_number\": \"ABC-123\",\n  \"college_workplace\": \"GIKI\",\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete temporary student (soft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{temp_student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{temp_student_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete main student (works now: history is kept)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deleted student is gone -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Restore student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}/restore",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}",
+                "restore"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Student is back -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/students/{{student_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "students",
+                "{{student_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create temporary room",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"temp_room_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_number\": \"T-{{run_id}}\",\n  \"floor\": 3,\n  \"capacity\": 2,\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete temporary room (soft)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms/{{temp_room_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms",
+                "{{temp_room_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deleted room's beds -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms/{{temp_room_id}}/beds",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms",
+                "{{temp_room_id}}",
+                "beds"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Same room number can be created again",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_a_id}}/rooms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_a_id}}",
+                "rooms"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_number\": \"T-{{run_id}}\",\n  \"floor\": 3,\n  \"capacity\": 2,\n  \"gender\": \"Male\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token_a}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "16. Close a branch (head office, run last)",
+      "item": [
+        {
+          "name": "Deactivate Branch B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_b_id}}\",\n  \"name\": \"Gulberg Hostel\",\n  \"code\": \"LHR-{{run_id}}\",\n  \"is_active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Branch B admin is now locked out -> 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}/students",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}",
+                "students"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token_b}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Branch B disappears from network overview",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/network/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "network",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Re-activate Branch B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 2xx\", function () { pm.expect(pm.response.code).to.be.within(200, 299); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches/{{branch_b_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{branch_b_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_b_id}}\",\n  \"name\": \"Gulberg Hostel\",\n  \"code\": \"LHR-{{run_id}}\",\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{super_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "17. Soft delete of branches and cities (head office)",
+      "item": [
+        {
+          "name": "Create temporary branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set(\"temp_branch_id\", json.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/branches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city_id\": \"{{city_a_id}}\",\n  \"name\": \"Temp Hostel\",\n  \"code\": \"TMP-{{run_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete temporary branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{temp_branch_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{temp_branch_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Deleted branch is not found -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{temp_branch_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{temp_branch_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete City A while it has branches -> 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/cities/{{city_a_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cities",
+                "{{city_a_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Restore temporary branch",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{temp_branch_id}}/restore",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{temp_branch_id}}",
+                "restore"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Branch is visible again -> 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/branches/{{temp_branch_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "branches",
+                "{{temp_branch_id}}"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{super_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ]
+}
